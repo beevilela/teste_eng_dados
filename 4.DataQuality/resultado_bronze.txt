@@ -1,0 +1,43 @@
+
+RELATÓRIO DE QUALIDADE DE DADOS - CAMADA BRONZE
+======================================================================
+
+As validações foram executadas na seguinte ordem:
+
+1. Completude
+2. Unicidade
+3. Validade
+4. Consistência
+5. Volume
+6. Schema
+
+RESULTADOS
+======================================================================
+
+Completude - cod_cliente: APROVADO | Nulos encontrados: 0
+Completude - nm_cliente: APROVADO | Nulos encontrados: 0
+Completude - nm_pais_cliente: APROVADO | Nulos encontrados: 0
+Completude - nm_cidade_cliente: APROVADO | Nulos encontrados: 0
+Completude - nm_rua_cliente: APROVADO | Nulos encontrados: 0
+Completude - num_casa_cliente: APROVADO | Nulos encontrados: 0
+Completude - dt_nascimento_cliente: APROVADO | Nulos encontrados: 0
+Completude - dt_atualizacao: APROVADO | Nulos encontrados: 0
+Completude - tp_pessoa: APROVADO | Nulos encontrados: 0
+Completude - vl_renda: APROVADO | Nulos encontrados: 0
+Unicidade - cod_cliente: REPROVADO | Códigos duplicados encontrados: 76
+Validade - telefone: REPROVADO | Telefones inválidos encontrados: 41
+Validade - tipo de pessoa: APROVADO | Valores inválidos encontrados: 0
+Validade - renda: APROVADO | Rendas negativas encontradas: 0
+Validade - data de nascimento: APROVADO | Datas futuras encontradas: 0
+Validade - idade: APROVADO | Idades fora da faixa de 0 a 120 anos: 0
+Consistência - nome em maiúsculas: APROVADO | Nomes fora do padrão: 0
+Consistência - datas: APROVADO | Atualizações anteriores ao nascimento: 0
+Volume - tabela não vazia: APROVADO | Total de registros: 500
+Schema - colunas esperadas: APROVADO | Nenhuma coluna ausente
+
+======================================================================
+
+STATUS GERAL: REPROVADO
+
+Quantidade de regras reprovadas: 2
+
