@@ -33,9 +33,6 @@ class TestDeduplicarClientes(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """
-        Cria uma única SparkSession para todos os testes.
-        """
         cls.spark = (
             SparkSession.builder
             .master("local[1]")
@@ -47,15 +44,11 @@ class TestDeduplicarClientes(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """
-        Encerra a SparkSession ao final dos testes.
-        """
         cls.spark.stop()
 
     def test_happy_path_mantem_registro_mais_recente(self):
         """
-        Happy path:
-        quando um cliente possui várias versões,
+        Happy path: quando um cliente possui várias versões,
         deve permanecer somente a mais recente.
         """
         dados = [
@@ -96,8 +89,7 @@ class TestDeduplicarClientes(unittest.TestCase):
 
     def test_caso_borda_cliente_com_um_registro(self):
         """
-        Caso de borda:
-        um cliente com apenas um registro deve ser preservado.
+        Caso de borda: um cliente com apenas um registro deve ser preservado.
         """
         dados = [
             (10, "CLIENTE ÚNICO", date(2025, 1, 1)),
@@ -127,8 +119,7 @@ class TestDeduplicarClientes(unittest.TestCase):
 
     def test_erro_sem_coluna_dt_atualizacao(self):
         """
-        Situação de erro:
-        a ausência da coluna dt_atualizacao deve causar erro do Spark.
+        Situação de erro: ausência da coluna dt_atualizacao deve causar erro.
         """
         dados = [
             (1, "CLIENTE SEM DATA"),

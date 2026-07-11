@@ -1,17 +1,13 @@
-5 (unittest.loader._FailedTest.5) ... ERROR
-
-======================================================================
-ERROR: 5 (unittest.loader._FailedTest.5)
-----------------------------------------------------------------------
-ImportError: Failed to import test module: 5
-Traceback (most recent call last):
-  File "/usr/lib/python3.12/unittest/loader.py", line 137, in loadTestsFromName
-    module = __import__(module_name)
-             ^^^^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named '5'
-
+test_caso_borda_cliente_com_um_registro (__main__.TestDeduplicarClientes.test_caso_borda_cliente_com_um_registro)
+Caso de borda: ... ok
+test_erro_sem_coluna_dt_atualizacao (__main__.TestDeduplicarClientes.test_erro_sem_coluna_dt_atualizacao)
+Situação de erro: ... ok
+test_happy_path_mantem_ultima_atualizacao (__main__.TestDeduplicarClientes.test_happy_path_mantem_ultima_atualizacao)
+Happy path: ... ok
+test_resultado_sem_codigos_duplicados (__main__.TestDeduplicarClientes.test_resultado_sem_codigos_duplicados)
+Caso extremo: ... ok
 
 ----------------------------------------------------------------------
-Ran 1 test in 0.000s
+Ran 4 tests in 2.672s
 
-FAILED (errors=1)
+OK
