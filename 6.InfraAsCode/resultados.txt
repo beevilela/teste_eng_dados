@@ -1,0 +1,8 @@
+Terraform v1.9.8
+on linux_amd64
++ provider registry.terraform.io/hashicorp/aws v6.54.0
+
+Your version of Terraform is out of date! The latest version
+is 1.15.8. You can update by downloading from https://www.terraform.io/downloads.html
+[32m[1mSuccess![0m The configuration is valid.
+[0m
