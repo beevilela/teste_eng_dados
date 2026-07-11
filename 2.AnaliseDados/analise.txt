@@ -1,0 +1,53 @@
+
+ANÁLISE DOS DADOS
+============================================================
+
+Objetivo
+
+Realizar as análises solicitadas utilizando o arquivo
+clientes_sinteticos.csv.
+
+============================================================
+
+1. Clientes com maior número de atualizações
+
+Critério
+
+Foi utilizado o campo cod_cliente como identificador único do cliente,
+uma vez que ao longo do tempo, diferentes nm_cliente assumem o mesmo
+cod_cliente no cadastro. 
+
+Resultado
+
+Foram identificados os cinco códigos de cliente com maior número de
+atualizações no histórico cadastral.
+
+|   cod_cliente |   qtd_atualizacoes |
+|--------------:|-------------------:|
+|           878 |                  5 |
+|           396 |                  5 |
+|           479 |                  5 |
+|           855 |                  4 |
+|           850 |                  3 |
+
+============================================================
+
+2. Média de idade dos clientes
+
+Resultado
+
+51.17 anos
+
+============================================================
+
+Observações
+
+• A análise foi realizada diretamente sobre o CSV conforme
+  especificado no enunciado.
+
+• Em ambiente produtivo, a contagem de atualizações seria
+  realizada sobre a camada Bronze.
+
+• Em uma análise realizada sob o nome dos clientes, curiosamente 
+  foi encontrado um homônimo: Kathleen Singh. 
+
