@@ -157,39 +157,44 @@ for error in bronze_response.get("Errors", []):
 # 8. DEDUPLICAÇÃO PARA A CAMADA SILVER
 
 
-janela_cliente = (
-    Window
-    .partitionBy("cod_cliente")
-    .orderBy(F.col("dt_atualizacao").desc())
-)
-
-df_silver = (
-    df_bronze
-    .withColumn(
-        "ordem_atualizacao",
-        F.row_number().over(janela_cliente),
+def deduplicar_clientes(dataframe):
+    janela_cliente = (
+        Window
+        .partitionBy("cod_cliente")
+        .orderBy(F.col("dt_atualizacao").desc())
     )
-    .filter(F.col("ordem_atualizacao") == 1)
-    .drop("ordem_atualizacao")
-)
+
+    return (
+        dataframe
+        .withColumn(
+            "ordem_atualizacao",
+            F.row_number().over(janela_cliente),
+        )
+        .filter(F.col("ordem_atualizacao") == 1)
+        .drop("ordem_atualizacao")
+    )
+
+
+df_silver = deduplicar_clientes(df_bronze)
 
 
 
 # 9. VALIDAÇÃO DO TELEFONE
 
 
-df_silver = (
-    df_silver
-    .withColumn(
-        "num_telefone_cliente",
-        F.when(
-            F.col("num_telefone_cliente").rlike(PHONE_PATTERN),
-            F.col("num_telefone_cliente"),
-        ).otherwise(
-            F.lit(None).cast(StringType())
-        ),
+def validar_telefone(dataframe):
+    return (
+        dataframe.withColumn(
+            "num_telefone_cliente",
+            F.when(
+                F.col("num_telefone_cliente").rlike(PHONE_PATTERN),
+                F.col("num_telefone_cliente")
+            ).otherwise(F.lit(None))
+        )
     )
-)
+
+
+df_silver = validar_telefone(df_silver)
 
 
 
