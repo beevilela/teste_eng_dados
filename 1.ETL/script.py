@@ -40,7 +40,16 @@ PHONE_PATTERN = r"^\(\d{2}\)\d{5}-\d{4}$"
 
 spark = (
     SparkSession.builder
-    .appName("etl_clientes_bronze_silver")
+    .appName("etl_clientes")
+    .config("spark.sql.adaptive.enabled", "true")
+    .config(
+        "spark.sql.adaptive.coalescePartitions.enabled",
+        "true"
+    )
+    .config(
+        "spark.sql.adaptive.skewJoin.enabled",
+        "true"
+    )
     .getOrCreate()
 )
 
@@ -157,7 +166,13 @@ for error in bronze_response.get("Errors", []):
 # 8. DEDUPLICAÇÃO PARA A CAMADA SILVER
 
 
-def deduplicar_clientes(dataframe):
+def deduplicar_clientes(dataframe, numero_particoes=None):
+    if numero_particoes:
+        dataframe = dataframe.repartition(
+            numero_particoes,
+            "cod_cliente"
+        )
+
     janela_cliente = (
         Window
         .partitionBy("cod_cliente")
@@ -168,14 +183,14 @@ def deduplicar_clientes(dataframe):
         dataframe
         .withColumn(
             "ordem_atualizacao",
-            F.row_number().over(janela_cliente),
+            F.row_number().over(janela_cliente)
         )
         .filter(F.col("ordem_atualizacao") == 1)
         .drop("ordem_atualizacao")
     )
 
 
-df_silver = deduplicar_clientes(df_bronze)
+df_silver = deduplicar_clientes(df_bronze, numero_particoes=40)
 
 
 
