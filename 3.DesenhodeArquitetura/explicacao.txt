@@ -1,0 +1,8 @@
+A arquitetura proposta utiliza uma abordagem de Data Lake Medalhão (Bronze, Silver e Gold) para garantir escalabilidade, rastreabilidade e qualidade dos dados.
+Os dados cadastrais são armazenados inicialmente em um banco MySQL. Para capturar as alterações de forma incremental, é utilizado o AWS Database Migration Service (DMS) com Change Data Capture (CDC), evitando cargas completas desnecessárias e reduzindo o impacto no banco de origem.
+As alterações capturadas são gravadas na camada Bronze do Amazon S3, preservando os dados em seu formato original e mantendo o histórico completo das alterações realizadas.
+A partir da Bronze, um AWS Glue Job realiza o processamento dos dados, aplicando as regras de negócio, padronização, deduplicação e validação dos registros. O resultado é gravado na camada Silver, contendo dados limpos e prontos para consumo analítico.
+Em seguida, novos processos do Glue consolidam as informações na camada Gold, onde os dados ficam organizados para atender consultas analíticas, indicadores de negócio e consumo por aplicações.
+O AWS Glue Data Catalog é responsável pelo gerenciamento dos metadados das tabelas, permitindo que os conjuntos de dados sejam consultados por serviços como o Amazon Athena.
+Para garantir a governança dos dados, foi adotado o AWS Lake Formation em conjunto com o AWS IAM, permitindo o controle de acesso em nível de usuário, tabela e permissões sobre o Data Lake.
+Por fim, o Amazon CloudWatch realiza o monitoramento dos processos de ingestão e transformação, disponibilizando logs, métricas e alertas para acompanhamento da execução dos pipelines.
