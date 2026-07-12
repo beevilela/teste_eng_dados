@@ -9,10 +9,13 @@ from pyspark.sql.utils import AnalysisException
 
 
 
-# Importação do script ETL
+# Importação do script ETL e massa de dados
 
 
 CAMINHO_SCRIPT_ETL = Path("1.ETL/script.py")
+
+CAMINHO_DADOS_TESTE = Path("5.TesteUnitario/dados_teste_clientes.csv")
+
 
 spec = importlib.util.spec_from_file_location(
     "script_etl",
@@ -46,27 +49,30 @@ class TestDeduplicarClientes(unittest.TestCase):
     def tearDownClass(cls):
         cls.spark.stop()
 
-    def test_happy_path_mantem_registro_mais_recente(self):
-        """
-        Happy path: quando um cliente possui várias versões,
-        deve permanecer somente a mais recente.
-        """
-        dados = [
-            (1, "CLIENTE ANTIGO", date(2024, 1, 10)),
-            (1, "CLIENTE NOVO", date(2025, 2, 15)),
-            (2, "OUTRO CLIENTE", date(2024, 5, 20)),
-        ]
 
-        colunas = [
-            "cod_cliente",
-            "nm_cliente",
-            "dt_atualizacao",
-        ]
 
-        dataframe = self.spark.createDataFrame(
-            dados,
-            colunas,
+    """
+    Lê a massa de dados criada especificamente para os testes unitários.
+    """
+
+    def carregar_base_teste(self):
+        return (
+            self.spark.read
+            .option("header", "true")
+            .option("inferSchema", "true")
+            .option("dateFormat", "yyyy-MM-dd")
+            .csv(str(CAMINHO_DADOS_TESTE))
         )
+
+
+
+    """
+    Happy path: apenas a versão mais recente do cadastro deve ser mantida.
+    """
+
+    def test_happy_path_mantem_registros_mais_recentes(self):
+        
+        dataframe = self.carregar_base_teste()
 
         resultado = deduplicar_clientes(dataframe)
 
@@ -75,64 +81,91 @@ class TestDeduplicarClientes(unittest.TestCase):
             for linha in resultado.collect()
         }
 
-        self.assertEqual(resultado.count(), 2)
+        self.assertEqual(
+            resultado.count(),
+            3,
+        )
 
         self.assertEqual(
             registros[1]["nm_cliente"],
-            "CLIENTE NOVO",
+            "CLIENTE MAIS RECENTE",
         )
 
         self.assertEqual(
-            registros[1]["dt_atualizacao"],
-            date(2025, 2, 15),
+            registros[3]["nm_cliente"],
+            "SEGUNDA VERSAO",
         )
+
+
+
+    """
+    Caso de borda: cliente com apenas uma versão deve ser preservado.
+    """
 
     def test_caso_borda_cliente_com_um_registro(self):
-        """
-        Caso de borda: um cliente com apenas um registro deve ser preservado.
-        """
-        dados = [
-            (10, "CLIENTE ÚNICO", date(2025, 1, 1)),
-        ]
-
-        colunas = [
-            "cod_cliente",
-            "nm_cliente",
-            "dt_atualizacao",
-        ]
-
-        dataframe = self.spark.createDataFrame(
-            dados,
-            colunas,
-        )
+        
+        dataframe = self.carregar_base_teste()
 
         resultado = deduplicar_clientes(dataframe)
 
-        registro = resultado.collect()[0]
-
-        self.assertEqual(resultado.count(), 1)
-        self.assertEqual(registro["cod_cliente"], 10)
-        self.assertEqual(
-            registro["nm_cliente"],
-            "CLIENTE ÚNICO",
+        cliente_unico = (
+            resultado
+            .filter(F.col("cod_cliente") == 2)
+            .collect()
         )
 
+        self.assertEqual(
+            len(cliente_unico),
+            1,
+        )
+
+        self.assertEqual(
+            cliente_unico[0]["nm_cliente"],
+            "CLIENTE UNICO",
+        )
+
+
+
+    """
+    Caso extremo: após a deduplicação, o cod_cliente pode aparecer + 1x.
+    """
+
+    def test_resultado_sem_clientes_duplicados(self):
+        
+        dataframe = self.carregar_base_teste()
+
+        resultado = deduplicar_clientes(dataframe)
+
+        total_registros = resultado.count()
+
+        total_clientes_distintos = (
+            resultado
+            .select("cod_cliente")
+            .distinct()
+            .count()
+        )
+
+        self.assertEqual(
+            total_registros,
+            total_clientes_distintos,
+        )
+
+
+
+    """
+    Situação de erro: ausência da coluna dt_atualizacao deve causar erro.
+    """
+
     def test_erro_sem_coluna_dt_atualizacao(self):
-        """
-        Situação de erro: ausência da coluna dt_atualizacao deve causar erro.
-        """
-        dados = [
-            (1, "CLIENTE SEM DATA"),
-        ]
-
-        colunas = [
-            "cod_cliente",
-            "nm_cliente",
-        ]
-
+        
         dataframe = self.spark.createDataFrame(
-            dados,
-            colunas,
+            [
+                (1, "CLIENTE SEM DATA"),
+            ],
+            [
+                "cod_cliente",
+                "nm_cliente",
+            ],
         )
 
         with self.assertRaises(AnalysisException):
@@ -140,4 +173,8 @@ class TestDeduplicarClientes(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    unittest.main(
+        argv=[""],
+        exit=False,
+        verbosity=2,
+    )
