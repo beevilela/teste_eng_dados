@@ -8,6 +8,6 @@ test_resultado_sem_codigos_duplicados (__main__.TestDeduplicarClientes.test_resu
 Caso extremo: ... ok
 
 ----------------------------------------------------------------------
-Ran 4 tests in 2.672s
+Ran 4 tests in 6.271s
 
 OK
